@@ -11,11 +11,15 @@ module Parse
     attr_reader :class_name
     attr_reader :created_at
     attr_reader :updated_at
+
+    attr_accessor :client
+
     alias :id :parse_object_id
 
     def initialize(class_name, data = nil)
       @class_name = class_name
       @op_fields = {}
+      @client = Parse.client
       if data
         parse data
       end
@@ -65,7 +69,7 @@ module Parse
       end
 
       body = safe_hash.to_json
-      data = Parse.client.request(self.uri, method, body)
+      data = @client.request(self.uri, method, body)
 
       if data
         # array operations can return mutated view of array which needs to be parsed
@@ -143,7 +147,7 @@ module Parse
     # Delete the remote Parse API object.
     def parse_delete
       if @parse_object_id
-        response = Parse.client.delete self.uri
+        response = @client.delete self.uri
       end
 
       self.clear
@@ -180,7 +184,7 @@ module Parse
       #end
 
       body = {field => Parse::Increment.new(amount)}.to_json
-      data = Parse.client.request(self.uri, :put, body)
+      data = @client.request(self.uri, :put, body)
       parse data
       self
     end
