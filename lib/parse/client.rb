@@ -83,6 +83,14 @@ module Parse
       request(uri, :put, body)
     end
 
+    def cloud(function_name)
+      Cloud::Function.new(self, function_name)
+    end
+
+    def query(class_name)
+      Query.new(self, class_name)
+    end
+
     def delete(uri)
       request(uri, :delete)
     end
@@ -107,6 +115,15 @@ module Parse
       # use less permissive key if both are specified
       defaults[:master_key] = ENV["PARSE_MASTER_API_KEY"] unless data[:master_key] || defaults[:api_key]
       @@client = Client.new(defaults, &blk)
+    end
+
+    def create(data = {}, &blk)
+      defaults = {:application_id => ENV["PARSE_APPLICATION_ID"], :api_key => ENV["PARSE_REST_API_KEY"]}
+      defaults.merge!(data)
+
+      # use less permissive key if both are specified
+      defaults[:master_key] = ENV["PARSE_MASTER_API_KEY"] unless data[:master_key] || defaults[:api_key]
+      return Client.new(defaults, &blk)
     end
 
     # A convenience method for using global.json
